@@ -19,20 +19,6 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 
 ---
 
-## Project Structure
-
-sql-crash-course/
-│── datasets/ # Raw CSV datasets (sample only)
-│── sql/ # SQL scripts for daily exercises
-│── dashboards/ # Optional screenshots of query results
-│── notes/ # Daily learning notes
-│── README.md # Project overview
-
-yaml
-Copy code
-
----
-
 ## 2-Week SQL Crash Course Plan
 
 **Week 1: Core SQL & Data Exploration**
