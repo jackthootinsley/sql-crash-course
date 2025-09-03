@@ -14,7 +14,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 **1. Kaggle Online Retail Dataset**  
 - Source: [Kaggle E-commerce Dataset](https://www.kaggle.com/datasets/carrie1/ecommerce-data)  
 - Description: Contains transactions from an online retail store, including invoice numbers, product codes, descriptions, quantities, prices, and customer info.  
-- Imported into Supabase as table: `"kaggle ecommerce dataset"`  
+- Imported into Supabase as table: `kaggle_ecommerce_dataset`  
 - A synthetic primary key (`id`) has been added for unique row identification.  
 
 **2. Optional Additional Datasets:**  
