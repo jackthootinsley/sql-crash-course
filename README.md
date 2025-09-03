@@ -1,53 +1,88 @@
-# SQL Crash Course – Supabase Project
+# SQL Crash Course – 2-Week Project
 
 ## Overview
 
-This repository contains my work for a **2-week SQL crash course** using a real-world dataset from Kaggle.  
-The goal is to practice and demonstrate **professional SQL skills**, including data modeling, queries, aggregations, joins, window functions, and performance optimization.  
+This repository contains my work for a **2-week intensive SQL crash course** using real-world datasets.  
+The goal is to practice and demonstrate **professional SQL skills**, including advanced queries, data modeling, ETL pipelines, query optimization, security, dashboarding, and portfolio-ready projects.  
 
 All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** for query testing, and **VSCode + GitHub** for version control and documentation.  
 
 ---
 
-## Dataset
+## Datasets
 
-**Kaggle Online Retail Dataset**  
+**1. Kaggle Online Retail Dataset**  
 - Source: [Kaggle E-commerce Dataset](https://www.kaggle.com/datasets/carrie1/ecommerce-data)  
 - Description: Contains transactions from an online retail store, including invoice numbers, product codes, descriptions, quantities, prices, and customer info.  
-- Imported into Supabase as table: `kaggle_ecommerce_dataset`  
+- Imported into Supabase as table: `"kaggle ecommerce dataset"`  
 - A synthetic primary key (`id`) has been added for unique row identification.  
+
+**2. Optional Additional Datasets:**  
+- NYC Taxi Trip Data (~1M rows): [TLC Trip Records](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page)  
+- Airbnb Seattle Data: [Kaggle Airbnb Dataset](https://www.kaggle.com/datasets/airbnb/seattle)  
+- BigQuery public datasets for cloud practice  
 
 ---
 
 ## 2-Week SQL Crash Course Plan
 
-**Week 1: Core SQL & Data Exploration**
-- Day 1: Basic SELECT queries, filtering, ordering  
-- Day 2: Aggregations, GROUP BY, HAVING  
-- Day 3: Joins (INNER, LEFT, RIGHT, FULL)  
-- Day 4: Common Table Expressions (CTEs)  
-- Day 5: Window functions (RANK, ROW_NUMBER, SUM OVER)  
-- Day 6: Subqueries and nested queries  
-- Day 7: Review & consolidate queries  
+### Week 1 – Core SQL + Foundations
 
-**Week 2: Advanced SQL & Data Modeling**
-- Day 8: Database design, normalization, primary/foreign keys  
-- Day 9: Indexing and query performance optimization  
-- Day 10: Advanced joins and multi-level aggregations  
-- Day 11: Views and materialized views  
-- Day 12: User-defined functions and stored procedures  
-- Day 13: Mini-project: build a dashboard-ready dataset  
-- Day 14: Final review, cleanup, and GitHub portfolio preparation  
+- **Day 1: Advanced SQL Queries**  
+  Focus on joins, subqueries, and window functions using the Kaggle dataset.  
+
+- **Day 2: Query Optimization & Large Data**  
+  Learn performance tuning and indexing; practice with large datasets like NYC Taxi data.  
+
+- **Day 3: Database Design & Modeling**  
+  Normalize data, create ER diagrams, and design star schemas for analytics.  
+
+- **Day 4: Business KPIs & Real-World Queries**  
+  Turn queries into actionable metrics, such as revenue, churn, and repeat purchase rates.  
+
+- **Day 5: ETL / Data Pipeline Intro**  
+  Load raw CSVs into Postgres, clean data, and create transformed analytics-ready tables.  
+
+- **Day 6: Collaboration & Git**  
+  Save queries as `.sql` files, commit to GitHub, and practice branching/pull requests.  
+
+- **Day 7: Mini Project #1**  
+  Integrate Week 1 skills: load datasets, write 5–10 queries, document assumptions, and push to GitHub.  
+
+### Week 2 – Professional Practices & Business Context
+
+- **Day 8: Security & Restricted Views**  
+  Create roles, grant permissions, and mask sensitive data for professional workflows.  
+
+- **Day 9: Dashboarding**  
+  Connect SQL results to Tableau, Power BI, or Metabase to visualize metrics.  
+
+- **Day 10: Cloud SQL / Tooling**  
+  Work with cloud datasets like BigQuery; integrate Python (pandas, SQLAlchemy) for analysis.  
+
+- **Day 11: Business Case Simulation**  
+  Translate vague business questions into SQL queries, e.g., churn rate, top customer segments, revenue trends.  
+
+- **Day 12: Portfolio Polish**  
+  Organize SQL scripts, dashboards, and notes in GitHub; add README documentation.  
+
+- **Day 13: Capstone Mini Project**  
+  End-to-end project: choose a dataset, design schema, write KPI queries, create dashboards, and push to GitHub.  
+
+- **Day 14: Mock Interview & Review**  
+  Practice explaining queries, optimization, OLTP vs OLAP, and business metrics; present your GitHub portfolio.  
 
 ---
 
 ## Goals
 
-By the end of the 2-week crash course, I aim to:  
-- Build confidence writing professional SQL queries  
-- Understand how to model relational data and maintain referential integrity  
-- Optimize queries for performance  
-- Track all work in GitHub to showcase SQL projects and portfolio readiness  
+By the end of the 2-week course, I aim to:  
+- Write **professional-grade SQL queries** on real-world datasets  
+- Understand **relational modeling, normalization, and star schemas**  
+- Optimize queries for performance on large datasets  
+- Practice **ETL pipelines, security, and dashboard creation**  
+- Maintain a **portfolio-ready GitHub repository** with SQL scripts and visualizations  
+- Communicate insights effectively to non-technical stakeholders  
 
 ---
 
@@ -56,11 +91,13 @@ By the end of the 2-week crash course, I aim to:
 1. Connect to the Supabase database using **pgAdmin**.  
 2. Open SQL scripts from the `sql/` folder.  
 3. Execute queries in pgAdmin or Supabase SQL Editor.  
-4. Results can be optionally saved as screenshots in `dashboards/` for portfolio presentation.  
+4. Save results or take screenshots to include in `dashboards/`.  
 
 ---
 
 ## Notes
 
-- Table and column names are quoted when necessary due to spaces (e.g., `"kaggle ecommerce dataset"`).  
-- All queries are version-controlled and tracked in GitHub for reproducibility and portfolio purposes. 
+- Table and column names with spaces are quoted (e.g., `"kaggle ecommerce dataset"`).  
+- All queries are version-controlled in GitHub for reproducibility.  
+- Dashboards/screenshots provide visualizations of key insights for portfolio purposes.
+
