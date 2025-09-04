@@ -29,6 +29,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 ### Week 1 – Core SQL + Foundations
 
 - **Day 1: Advanced SQL Queries with the Kaggle dataset** 
+
   Focus on joins, subqueries, and window functions using the Kaggle dataset.  
 
 - **Day 2: Query Optimization & Large Data**  
