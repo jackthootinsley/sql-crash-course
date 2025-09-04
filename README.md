@@ -30,9 +30,8 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 **2. NYC Taxi Trip Data, 1 month (~3.5M rows)**
 - Source: [NYC Taxi Trip Dataset, January 2025 Yellow Taxi Trip Records] https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
 - Description: Trimmed Yellow Taxi dataset (~3.5M rows) containing only key columns for query optimization: vendor ID, pickup/dropoff timestamps, passenger count, trip distance, payment type, and fare-related amounts.
-- Dropped irrelevant columns (e.g., extra fees, airport fees, congestion surcharges).
-- Kept only numeric and categorical fields relevant for aggregation, filtering, and indexing practice.
-- Preserved timestamps for time-based queries and analytics.
+- Kept only numeric and categorical fields relevant for aggregation, filtering, and indexing practice and dropped irrelevant columns (e.g., extra fees, airport fees, congestion surcharges).
+- Imported into Supabase as table: `nyc_yellow_taxi_jan2025`
 
 **3. Optional Additional Datasets:**  
 - Airbnb Seattle Data: [Kaggle Airbnb Dataset](https://www.kaggle.com/datasets/airbnb/seattle)  
