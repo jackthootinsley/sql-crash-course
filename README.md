@@ -73,19 +73,6 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 - **End of week 2: Capstone Mini Project**  
   End-to-end project: choose a dataset, design schema, write KPI queries, create dashboards, and push to GitHub.  
 
-
----
-
-## Goals
-
-By completing this project, I demonstrate the ability to 
-- Write **professional-grade SQL queries** on real-world datasets  
-- Understand **relational modeling, normalization, and star schemas**  
-- Optimize queries for performance on large datasets  
-- Practice **ETL pipelines, security, and dashboard creation**  
-- Maintain a **portfolio-ready GitHub repository** with SQL scripts and visualizations  
-- Communicate insights effectively to non-technical stakeholders  
-
 ---
 
 ## How to Run Queries
