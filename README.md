@@ -51,7 +51,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   Turn queries into actionable metrics, such as revenue, churn, and repeat purchase rates.  
 
 - **Day 5: ETL / Data Pipeline Intro**  
-  Load raw CSVs into Postgres, clean data, and create transformed analytics-ready tables.  
+  Load raw CSVs into Postgres, clean data, and create transformed analytics-ready tables using materialized views, foreign data wrappers, and partitioning.  
   
 - **End of week 1: Mini Project #1**  
   Integrate Week 1 skills: load datasets, write 5–10 queries, document assumptions, and push to GitHub.  
