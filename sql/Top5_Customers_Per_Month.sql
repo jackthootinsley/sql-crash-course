@@ -9,7 +9,7 @@ WITH customer_monthly_spend_cte AS (
 		DATE_TRUNC('month', "InvoiceDate"::timestamp) AS month,
 		SUM("Quantity" * "UnitPrice"::numeric) AS total_spend
 	FROM kaggle_ecommerce_dataset AS kaggle
-	WHERE "CustomerID" <> ''
+	WHERE "CustomerID" IS NOT NULL AND "CustomerID" <> ''
 	GROUP BY "CustomerID", month
 )
 SELECT
