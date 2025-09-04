@@ -25,10 +25,16 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 - Source: [Kaggle E-commerce Dataset](https://www.kaggle.com/datasets/carrie1/ecommerce-data)  
 - Description: Contains transactions from an online retail store, including invoice numbers, product codes, descriptions, quantities, prices, and customer info.  
 - Imported into Supabase as table: `kaggle_ecommerce_dataset`  
-- A synthetic primary key (`id`) has been added for unique row identification.  
+- A synthetic primary key (`id`) has been added for unique row identification.
+  
+**2. NYC Taxi Trip Data, 1 month (~3.5M rows)**
+- Source: [NYC Taxi Trip Data, January 2025 Yellow Taxi Trip Records] https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+- Description: Trimmed Yellow Taxi dataset (~3.5M rows) containing only key columns for query optimization: vendor ID, pickup/dropoff timestamps, passenger count, trip distance, payment type, and fare-related amounts.
+- Dropped irrelevant columns (e.g., extra fees, airport fees, congestion surcharges).
+- Kept only numeric and categorical fields relevant for aggregation, filtering, and indexing practice.
+- Preserved timestamps for time-based queries and analytics.
 
-**2. Optional Additional Datasets:**  
-- NYC Taxi Trip Data (~1M rows): [TLC Trip Records](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page)  
+**3. Optional Additional Datasets:**  
 - Airbnb Seattle Data: [Kaggle Airbnb Dataset](https://www.kaggle.com/datasets/airbnb/seattle)  
 - BigQuery public datasets for cloud practice  
 
@@ -41,7 +47,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 - [Kaggle dataset] **Day 1: Advanced SQL Queries** 
   Focus on joins, subqueries, and window functions using the Kaggle dataset.  
 
-- **Day 2: Query Optimization & Large Data**
+- [NYC Taxi Trip Data] **Day 2: Query Optimization & Large Data**
   Query optimisation & indexing on large datasets 
 
 - **Day 3: Database Design & Modeling**  
