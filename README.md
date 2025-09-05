@@ -62,7 +62,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 
   <details>
     
-  <summary>Step 1: Identify a slow query</summary>
+  <summary> ###Step 1: Identify a slow query</summary>
   
   **Count all trips over or equal to 5 miles with fare ≥ 20 and with a passenger count equal to 4**
   
@@ -76,7 +76,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
    **Observation**
   - This query takes a time of (~0.76 seconds) because it performs a **sequential scan** over all 1M rows.
   - Most rows are filtered out, so the scan is inefficient.<br>
-  - (Note: I previously filtered on only trip_distance and fare_amount which caused the index to be slower showing that an index is not always beneficial.
+  - (Note: I previously filtered on only trip_distance and fare_amount which caused the index to be slower showing that an index is not always beneficial.)
   
   <br>
   
@@ -99,6 +99,35 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   </details>
   
   </details>
+
+
+  <details>
+    
+  <summary>Step 2: Implement an index to speed up query</summary>
+
+  **Query**
+  ```sql
+  CREATE INDEX index_distance__passenger_fare
+  ON nyc_yellow_taxi_jan2025(trip_distance, fare_amount, passenger_count)
+  ```
+
+  **Observation**
+  - This query takes a time of (~0.03 seconds) because it performs a **index scan** over the specified rows.
+  </details>
+
+  <br>
+  
+  **EXPLAIN ANALYZE Output (index):**
+  <details>
+  <summary>Click to expand</summary>
+    
+  ```
+  Aggregate  (cost=156.15..156.16 rows=1 width=8) (actual time=32.986..32.986 rows=1 loops=1)
+    Index Scan using index_distance_passenger_fare on nyc_yellow_taxi_jan2025  (cost=0.42..156.13 rows=8 width=4) (actual time=1.049..32.878 rows=466 loops=1)
+    Index Cond: ((trip_distance >= '20'::double precision) AND (fare_amount >= '50'::double precision) AND (passenger_count = 4))
+  Planning Time: 9.221 ms
+  Execution Time: 34.354 ms
+  ```
 
 
 - **Day 3: Database Design & Modeling**  
