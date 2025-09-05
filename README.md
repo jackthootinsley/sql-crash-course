@@ -48,7 +48,10 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   Focus on joins, subqueries, and window functions using the Kaggle dataset.  
 
 - [NYC Taxi Trip Dataset] **Day 2: Query Optimization & Large Data**
-  Query optimisation & indexing on large datasets 
+  Query optimisation & indexing on large datasets
+  <details>
+    EXPLAIN ANALYZE
+  </details>
 
 - **Day 3: Database Design & Modeling**  
   Database design & modeling - normalisation, ER diagrams, star schemas  
