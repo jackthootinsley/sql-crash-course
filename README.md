@@ -27,9 +27,9 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 - Imported into Supabase as table: `kaggle_ecommerce_dataset`  
 - A synthetic primary key (`id`) has been added for unique row identification.
   
-**2. NYC Taxi Trip Data, 1 month (~3.5M rows)**
+**2. NYC Taxi Trip Data, 1 month (trimmed) (~1M rows)**
 - Source: [NYC Taxi Trip Dataset, January 2025 Yellow Taxi Trip Records] https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
-- Description: Trimmed Yellow Taxi dataset (~3.5M rows) containing only key columns for query optimization: vendor ID, pickup/dropoff timestamps, passenger count, trip distance, payment type, and fare-related amounts.
+- Description: Trimmed Yellow Taxi dataset (trimmed due to database size restrictions) (~1M rows) containing only key columns for query optimization: vendor ID, pickup/dropoff timestamps, passenger count, trip distance, payment type, and fare-related amounts.
 - Kept only numeric and categorical fields relevant for aggregation, filtering, and indexing practice and dropped irrelevant columns (e.g., extra fees, airport fees, congestion surcharges).
 - Imported into Supabase as table: `nyc_yellow_taxi_jan2025`
 - A synthetic primary key (`id`) has been added for unique row identification.
