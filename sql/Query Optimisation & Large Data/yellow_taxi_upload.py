@@ -34,7 +34,7 @@ columns_to_keep = [
 ]
 df = df[columns_to_keep]
 
-# Time to 1M rows 
+# Trim to 1M rows 
 df = df.head(1000000)
 
 # Rename columns to lowercase to match Postgres table
