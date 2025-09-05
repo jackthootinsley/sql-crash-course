@@ -74,7 +74,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   ```
 
    **Observation**
-  - This query takes a long time (~2.25 seconds) because it performs a **sequential scan** over all 3.5M rows.
+  - This query takes a time of (~0.45 seconds) because it performs a **sequential scan** over all 1M rows.
   - Most rows are filtered out, so the scan is inefficient.<br>
   
   <br>
@@ -84,15 +84,15 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   <summary>Click to expand</summary>
     
   ```
-  Gather  (cost=78246.99..78247.10 rows=1 width=8) (actual time=2248.273..2250.276 rows=2 loops=1)
+  Gather  (cost=23265.65..23265.76 rows=1 width=8) (actual time=446.809..450.133 rows=2 loops=1)
     Workers Planned: 1
     Workers Launched: 1
-    Partial Aggregate  (cost=77246.99..77247.00 rows=1 width=8) (actual time=2195.860..2195.861 rows=1 loops=2)
-      Parallel Seq Scan on nyc_yellow_taxi_jan2025  (cost=0.00..77063.76 rows=73292 width=4) (actual time=2.458..2174.651 rows=248204 loops=2)
-        Filter: ((trip_distance >= '5'::double precision) AND (fare_amount >= '20'::double precision))
-        Rows Removed by Filter: 1489409
-  Planning Time: 0.097 ms
-  Execution Time: 2250.338 ms
+    Partial Aggregate  (cost=22265.65..22265.66 rows=1 width=8) (actual time=441.548..441.549 rows=1 loops=2)
+    Parallel Seq Scan on nyc_yellow_taxi_jan2025  (cost=0.00..22199.53 rows=26450 width=4) (actual time=0.621..435.118 rows=75308 loops=2)
+      Filter: ((trip_distance >= '5'::double precision) AND (fare_amount >= '20'::double precision))
+      Rows Removed by Filter: 424692"
+  Planning Time: 0.100 ms
+  Execution Time: 451.386 ms
   ```
   
   </details>
