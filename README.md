@@ -55,80 +55,235 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
     - **Customer Purchase A&B:** joins, aggregation, window functions, subqueries
     
   </details>
-
+  <br>
 
 - [NYC Taxi Trip Dataset] **Day 2: Query Optimization & Large Data**
   Query optimisation & indexing on large datasets
 
   <details>
     
-  <summary> ###Step 1: Identify a slow query</summary>
+    <summary>Step 1: Identify a slow query</summary>
   
-  **Count all trips over or equal to 5 miles with fare ≥ 20 and with a passenger count equal to 4**
+    **Count all trips over or equal to 5 miles with fare ≥ 20 and with a passenger count equal to 4**
   
-  **Query**
+    **Query**
+    ```sql
+    SELECT COUNT(id)
+    FROM nyc_yellow_taxi_jan2025
+    WHERE trip_distance >= 5 AND fare_amount >= 20 AND passenger_count = 4;
+    ```
+
+    **Observation**
+    - This query takes a time of (~1.41 seconds) because it performs a **sequential scan** over all 1M rows.
+    - Most rows are filtered out, so the scan is inefficient.<br>
+    - (Note: I previously filtered on only trip_distance and fare_amount which caused the index to be slower showing that an index is not always beneficial. This illustrates that indexes are only beneficial when the filter is selective enough to significantly reduce rows scanned.)
+  
+    <br>
+  
+    **EXPLAIN ANALYZE Output (baseline without index):**
+    <details>
+      <summary>Click to expand</summary>
+        
+      ```
+      Gather  (cost=24670.13..24670.24 rows=1 width=8) (actual time=1406.119..1412.717 rows=2 loops=1)
+        Workers Planned: 1
+        Workers Launched: 1
+        Partial Aggregate  (cost=23670.13..23670.14 rows=1 width=8) (actual time=1354.359..1354.359 rows=1 loops=2)
+        Parallel Seq Scan on nyc_yellow_taxi_jan2025  (cost=0.00..23670.12 rows=5 width=4) (actual time=362.282..1354.205 rows=233 loops=2)
+          Filter: ((trip_distance >= '20'::double precision) AND (fare_amount >= '50'::double precision) AND (passenger_count = 4))
+          Rows Removed by Filter: 499767
+      Planning Time: 0.141 ms
+      Execution Time: 1412.763 ms
+      ```
+    
+    </details>
+  
+  </details>
+
+  <details>
+    
+    <summary>Step 2: Create a composite index to optimise above query</summary>
+
+    **Index on trip_distance, fare_amount, and passenger_count**
+
+    **Query**
+    ```sql
+    CREATE INDEX index_distance__passenger_fare
+    ON nyc_yellow_taxi_jan2025(trip_distance, fare_amount, passenger_count);
+    ```
+
+    **Observation**
+    - This query takes a time of (~0.03 seconds) because it performs a **index scan** over the specified rows.
+  
+    <br>
+  
+    **EXPLAIN ANALYZE Output (with index):**
+    <details>
+      <summary>Click to expand</summary>
+        
+      ```
+      Aggregate  (cost=156.15..156.16 rows=1 width=8) (actual time=32.986..32.986 rows=1 loops=1)
+        Index Scan using index_distance_passenger_fare on nyc_yellow_taxi_jan2025  (cost=0.42..156.13 rows=8 width=4) (actual time=1.049..32.878 rows=466 loops=1)
+        Index Cond: ((trip_distance >= '20'::double precision) AND (fare_amount >= '50'::double precision) AND (passenger_count = 4))
+      Planning Time: 9.221 ms
+      Execution Time: 34.354 ms
+      ```
+    
+    </details>
+  
+  </details>
+
+  <details>
+    
+    <summary>Step 3: Further optimise queries with additional filters</summary>
+
+    **Count trips over 20 miles, fare >= 50, passenger_count = 4, for a specific vendor**
+
+    **Query**
+    ```sql
+    CREATE INDEX index_distance__passenger_fare_vendor
+    ON nyc_yellow_taxi_jan2025(trip_distance, fare_amount, passenger_count, vendorid);
+    ```
+
+    **Observation**
+    - PostgreSQL still uses the **previous composite index** for the first three columns, but `vendorid` is filtered afterwards
+        
+    <br>
+  
+    **EXPLAIN ANALYZE Output (composite index with additional filter):**
+    <details>
+      <summary>Click to expand</summary>
+        
+      ```
+      Aggregate  (cost=156.15..156.16 rows=1 width=8) (actual time=32.986..32.986 rows=1 loops=1)
+        Index Scan using index_distance_passenger_fare on nyc_yellow_taxi_jan2025  (cost=0.42..156.13 rows=8 width=4) (actual time=1.049..32.878 rows=466 loops=1)
+        Index Cond: ((trip_distance >= '20'::double precision) AND (fare_amount >= '50'::double precision) AND (passenger_count = 4))
+      Planning Time: 9.221 ms
+      Execution Time: 34.354 ms
+      Aggregate  (cost=156.16..156.17 rows=1 width=8) (actual time=0.983..0.984 rows=1 loops=1)
+        Index Scan using index_distance_passenger_fare on nyc_yellow_taxi_jan2025  (cost=0.42..156.15 rows=6 width=4) (actual time=0.029..0.923 rows=425 loops=1)
+          Index Cond: ((trip_distance >= '20'::double precision) AND (fare_amount >= '50'::double precision) AND (passenger_count = 4))
+          Filter: (vendorid = 2)
+          Rows Removed by Filter: 41
+      Planning Time: 0.134 ms
+      Execution Time: 1.013 ms
+      ```
+    
+    </details>
+
+  </details>
+
+  <details>
+    
+    <summary>Step 4: Join optimization with a lookup table</summary>
+
+    **Create a small reference table to optimise joins**
+
+    **Query (create lookup table)**
+    ```sql
+    CREATE TABLE payment_lookup (
+        payment_type INT PRIMARY KEY,
+        payment_method TEXT
+    );
+
+    INSERT INTO payment_lookup (payment_type, payment_method) VALUES
+        (1, 'Credit card'),
+        (2, 'Cash'),
+        (3, 'No charge'),
+        (4, 'Dispute'),
+        (5, 'Unknown'),
+        (6, 'Voided trip');
+    ```
+
+    **Query (join taxi data to lookup table)**
+    ```sql
+    SELECT pl.payment_method, COUNT(*) AS trips_count
+    FROM nyc_yellow_taxi_jan2025 t
+    JOIN payment_lookup pl
+      ON t.payment_type = pl.payment_type
+    GROUP BY pl.payment_method
+    ORDER BY trips_count DESC;
+    ```
+
+    **Observation**
+    - Using a small lookup table allows **efficient aggregation** with descriptive labels instead of numeric codes.
+    - Joins are fast because the `payment_lookup` table is tiny and can fit in memory.
+    - Demonstrates **query optimization via join indexing** if `payment_type` is indexed on the main table.
+
+  </details>
+
+  <details>
+    <summary>Step 5: Window function / time-series analysis</summary>
+
+    **Calculate cumulative fare per vendor ordered by pickup time where fare amount is ≥ 100**
+
+    **Query**
   ```sql
-  SELECT COUNT(id)
+  SELECT 
+    vendorid,
+    tpep_pickup_datetime,
+    fare_amount,
+    SUM(fare_amount) OVER(PARTITION BY vendorid ORDER BY tpep_pickup_datetime) AS cumulative_fare
   FROM nyc_yellow_taxi_jan2025
-  WHERE trip_distance >= 5 AND fare_amount >= 20 AND passenger_count = 4
-  ```
-
-   **Observation**
-  - This query takes a time of (~0.76 seconds) because it performs a **sequential scan** over all 1M rows.
-  - Most rows are filtered out, so the scan is inefficient.<br>
-  - (Note: I previously filtered on only trip_distance and fare_amount which caused the index to be slower showing that an index is not always beneficial.)
-  
-  <br>
-  
-  **EXPLAIN ANALYZE Output (baseline):**
-  <details>
-  <summary>Click to expand</summary>
-    
-  ```
-  Gather  (cost=24670.13..24670.24 rows=1 width=8) (actual time=1406.119..1412.717 rows=2 loops=1)
-    Workers Planned: 1
-    Workers Launched: 1
-    Partial Aggregate  (cost=23670.13..23670.14 rows=1 width=8) (actual time=1354.359..1354.359 rows=1 loops=2)
-    Parallel Seq Scan on nyc_yellow_taxi_jan2025  (cost=0.00..23670.12 rows=5 width=4) (actual time=362.282..1354.205 rows=233 loops=2)
-      Filter: ((trip_distance >= '20'::double precision) AND (fare_amount >= '50'::double precision) AND (passenger_count = 4))
-      Rows Removed by Filter: 499767
-  Planning Time: 0.141 ms
-  Execution Time: 1412.763 ms
-  ```
-  
-  </details>
-  
-  </details>
-
-
-  <details>
-    
-  <summary>Step 2: Implement an index to speed up query</summary>
-
-  **Query**
-  ```sql
-  CREATE INDEX index_distance__passenger_fare
-  ON nyc_yellow_taxi_jan2025(trip_distance, fare_amount, passenger_count)
+  WHERE fare_amount >= 100;
   ```
 
   **Observation**
-  - This query takes a time of (~0.03 seconds) because it performs a **index scan** over the specified rows.
+  - On large tables, **window functions** can be slow if the ORDER BY column is not indexed
+  - Adding an index on `(vendorid, tpep_pickup_datetime, fare_amount)` can dramatically reduce execution time due to scanning in order without sorting all rows
+  - (Note: that it is using a previously defined index to scan, if not for it, it would take drastically longer)
   </details>
-
+      
   <br>
   
-  **EXPLAIN ANALYZE Output (index):**
-  <details>
-  <summary>Click to expand</summary>
-    
-  ```
-  Aggregate  (cost=156.15..156.16 rows=1 width=8) (actual time=32.986..32.986 rows=1 loops=1)
-    Index Scan using index_distance_passenger_fare on nyc_yellow_taxi_jan2025  (cost=0.42..156.13 rows=8 width=4) (actual time=1.049..32.878 rows=466 loops=1)
-    Index Cond: ((trip_distance >= '20'::double precision) AND (fare_amount >= '50'::double precision) AND (passenger_count = 4))
-  Planning Time: 9.221 ms
-  Execution Time: 34.354 ms
-  ```
+  **EXPLAIN ANALYZE Output (baseline without index):**
+    <details>
+      <summary>Click to expand</summary>
+        
+      ```
+      WindowAgg  (cost=147059.86..167059.84 rows=1000000 width=28) (actual time=4537.588..5237.766 rows=1000000 loops=1)
+        Sort  (cost=147059.84..149559.84 rows=1000000 width=20) (actual time=4537.571..4680.841 rows=1000000 loops=1)
+          Sort Key: vendorid, tpep_pickup_datetime
+          Sort Method: external merge  Disk: 33312kB
+            Seq Scan on nyc_yellow_taxi_jan2025  (cost=0.00..23376.00 rows=1000000 width=20) (actual time=5.316..3686.880 rows=1000000 loops=1)
+    Planning Time: 18.464 ms
+    Execution Time: 5297.714 ms
+      WindowAgg  (cost=16659.61..16730.79 rows=3560 width=28) (actual time=36.570..38.044 rows=2352 loops=1)
+        Sort  (cost=16659.59..16668.49 rows=3560 width=20) (actual time=36.556..36.694 rows=2352 loops=1)
+          Sort Key: vendorid, tpep_pickup_datetime
+          Sort Method: quicksort  Memory: 188kB
+            Index Scan using index_distance_passenger_fare on nyc_yellow_taxi_jan2025  (cost=0.42..16449.59 rows=3560 width=20) (actual time=1.850..35.464 rows=2352 loops=1)
+            Index Cond: (fare_amount >= '100'::double precision)
+      Planning Time: 0.138 ms
+      Execution Time: 38.853 ms
+      ```
+  
+    </details>
 
+    **Observation after adding index**
+    ```sql
+    CREATE INDEX index_vendor_pickup_fare
+      ON nyc_yellow_taxi_jan2025(vendorid, tpep_pickup_datetime, fare_amount);
+    ```
+    - Query uses **index scan** to read rows in order per vendor, reducing the need for sorting
+    - Execution time drops significantly on large tables
+
+  **EXPLAIN ANALYZE Output (with index):**
+  <details>
+      <summary>Click to expand</summary>
+        
+      ```
+      WindowAgg  (cost=4.09..13058.62 rows=3560 width=28) (actual time=0.027..33.719 rows=2352 loops=1)
+        Index Only Scan using index_vendor_pickup_fare on nyc_yellow_taxi_jan2025  (cost=0.42..12996.32 rows=3560 width=20) (actual time=0.016..32.024 rows=2352 loops=1)
+        Index Cond: (fare_amount >= '100'::double precision)
+        Heap Fetches: 0
+      Planning Time: 0.115 ms
+      Execution Time: 33.889 ms
+      ```
+  
+    </details>
+
+<br>
 
 - **Day 3: Database Design & Modeling**  
   Database design & modeling - normalisation, ER diagrams, star schemas  
