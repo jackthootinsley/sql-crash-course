@@ -47,9 +47,9 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 - [Kaggle Ecommerce Dataset] **Day 1: Advanced SQL Queries** 
   Focus on joins, subqueries, and window functions using the Kaggle dataset.  
   <details> 
-    - Top 5 Loyal Customers Per Year: aggregation, window functions, time-based analysis \n
-    - Top 5 Customers Per Month: aggregation, window functions, date truncation \n
-    - Lowest Revenue Product Per Country: aggregation, window functions, string aggregation \n
+    - Top 5 Loyal Customers Per Year: aggregation, window functions, time-based analysis  
+    - Top 5 Customers Per Month: aggregation, window functions, date truncation  
+    - Lowest Revenue Product Per Country: aggregation, window functions, string aggregation  
     - Customer Purchase A&B: joins, aggregation, window functions, subqueries
   </details>
 
