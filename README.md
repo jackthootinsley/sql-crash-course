@@ -64,18 +64,19 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
     
   <summary>Step 1: Identify a slow query</summary>
   
-  **Count all trips over or equal to 5 miles with fare ≥ 20**
+  **Count all trips over or equal to 5 miles with fare ≥ 20 and with a passenger count equal to 4**
   
   **Query**
   ```sql
   SELECT COUNT(id)
   FROM nyc_yellow_taxi_jan2025
-  WHERE trip_distance >= 5 AND fare_amount >= 20
+  WHERE trip_distance >= 5 AND fare_amount >= 20 AND passenger_count = 4
   ```
 
    **Observation**
-  - This query takes a time of (~0.45 seconds) because it performs a **sequential scan** over all 1M rows.
+  - This query takes a time of (~0.76 seconds) because it performs a **sequential scan** over all 1M rows.
   - Most rows are filtered out, so the scan is inefficient.<br>
+  - (Note: I previously filtered on only trip_distance and fare_amount which caused the index to be slower showing that an index is not always beneficial.
   
   <br>
   
@@ -84,15 +85,15 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   <summary>Click to expand</summary>
     
   ```
-  Gather  (cost=23265.65..23265.76 rows=1 width=8) (actual time=446.809..450.133 rows=2 loops=1)
+  Gather  (cost=24670.13..24670.24 rows=1 width=8) (actual time=1406.119..1412.717 rows=2 loops=1)
     Workers Planned: 1
     Workers Launched: 1
-    Partial Aggregate  (cost=22265.65..22265.66 rows=1 width=8) (actual time=441.548..441.549 rows=1 loops=2)
-    Parallel Seq Scan on nyc_yellow_taxi_jan2025  (cost=0.00..22199.53 rows=26450 width=4) (actual time=0.621..435.118 rows=75308 loops=2)
-      Filter: ((trip_distance >= '5'::double precision) AND (fare_amount >= '20'::double precision))
-      Rows Removed by Filter: 424692"
-  Planning Time: 0.100 ms
-  Execution Time: 451.386 ms
+    Partial Aggregate  (cost=23670.13..23670.14 rows=1 width=8) (actual time=1354.359..1354.359 rows=1 loops=2)
+    Parallel Seq Scan on nyc_yellow_taxi_jan2025  (cost=0.00..23670.12 rows=5 width=4) (actual time=362.282..1354.205 rows=233 loops=2)
+      Filter: ((trip_distance >= '20'::double precision) AND (fare_amount >= '50'::double precision) AND (passenger_count = 4))
+      Rows Removed by Filter: 499767
+  Planning Time: 0.141 ms
+  Execution Time: 1412.763 ms
   ```
   
   </details>
