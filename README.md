@@ -55,7 +55,6 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
     - **Customer Purchase A&B:** joins, aggregation, window functions, subqueries
     
   </details>
-  <br>
 
 - [NYC Taxi Trip Dataset] **Day 2: Query Optimization & Large Data**
   Query optimisation & indexing on large datasets
@@ -268,11 +267,84 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
     </details>
   <br>
 
-- **Day 3: Database Design & Modeling**  
-  Database design & modeling - normalisation, ER diagrams, star schemas  
+- [Kaggle Ecommerce Dataset] **Day 3: Database Design & Modeling**  
+  Database design & modeling - normalization, ER diagrams, star schemas  
+
+  <details> 
+    <summary>Step 1: Explore the raw table</summary>
+
+    - **Inspect the dataset**
+      The table contains the following columns:
+      `InvoiceNo`, `StockCode`, `Description`, `Quantity`,  
+      `InvoiceDate`, `UnitPrice`, `CustomerID`, `Country`, `id`
+      
+    - **Identify entities**
+      - **Customer info** (`CustomerID`, `Country`) repeats on every row
+      - **Product info** (`StockCode`, `Description`, `UnitPrice`) repeats for every order
+      - **Order info** (`InvoiceNo`, `InvoiceDate`) repeats for every line item in the order
+      
+    - **Detect redundancies**
+      - Each customer's country is duplicated across all their purchases
+      - Each product's description and unit price are duplicated across all orders
+      - Each invoice's data is duplicated across all line items
+ 
+    - **Conclusion**
+      - The dataset is in a **flat, denormalised format**
+      - Next steps: break it into separate entities (Customers, Products, Orders, Order Items) to reduce redundancy
+
+  </details>
+
+  <details>
+    <summary>Step 2: Normalisation</summary>
+
+    - **Task:** Split the raw table into 4 normalized tables to achieve 3NF and remove redundancy
+
+    - **Tables created**
+      1. `customers` → `CustomerID` (PK), `Country`
+      2. `products`  → `StockCode` (PK), `Description`, `UnitPrice`
+      3. `orders` → `InvoiceNo` (PK), `CustomerID`, `InvoiceDate`
+      4. `order_items` → `InvoiceNo` + `StockCode` (composite PK), `Quantity`
+   
+    - **Decisions made**
+      - Chose appropriate data types (`VARCHAR`, `TEXT`, `NUMERIC`, `INTEGER`, `TIMESTAMP`)
+      - Added NOT NULL constraints for critical fields
+      - Primary keys defined (including composite key for `order_items`)
+
+    - **Outcome**
+      - Tables are fully normalized and ready for defining relationships (foreign keys)
+      - Redundancy from the original flat table has been removed
+
+  </details>
+
+  <details>
+    <summary>Step 3: Relationships & ER Diagram</summary>
+
+    - **Task:** Link the normalised tables with foreign keys and illustarte the relationships via an ER diagram
+ 
+    - **Foreign Key relationships defined**
+    1. `orders.CustomerID` → `customers.CustomerID`
+        - Each order **belongs to exactly one customer**
+        - One customer can have **many orders**
+    2. `order_items.InvoiceNo` → `orders.InvoiceNo`
+        - Each order item **belongs to exactly one order**
+        - One order can have **many order items**
+    3.  `order_items.StockCode` → `products.StockCode`
+        - Each order item **refers to exactly one product**
+        - One product can appear in **many order items**
+      
+  - **ER Diagram**
+    
+      (sql/Database%20Design%20&%20Modelling/day3_er_diagram.png)
+
+  - **Outcome**
+    - All tables are now **fully normalised** and **linked**
+    - Redundancy is eliminated and relationships are explicit
+    - Ready for **queries, KPI calculation, and further modeling**
+  </details>
 
 - **Day 4: Business KPIs & Real-World Queries**  
-  Turn queries into actionable metrics, such as revenue, churn, and repeat purchase rates.  
+  Turn queries into actionable metrics, such as revenue, churn, and repeat purchase rates.
+  
 
 - **Day 5: ETL / Data Pipeline Intro**  
   Load raw CSVs into Postgres, clean data, and create transformed analytics-ready tables using materialized views, foreign data wrappers, and partitioning.  
