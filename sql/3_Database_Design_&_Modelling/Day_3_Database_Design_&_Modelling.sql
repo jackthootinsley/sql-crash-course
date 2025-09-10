@@ -65,3 +65,42 @@
 -- FOREIGN KEY ("StockCode")
 -- REFERENCES products("StockCode");
 	
+-- Populate the new tables with data from the raw dataset
+-- INSERT INTO customers ("CustomerID", "Country")
+-- SELECT DISTINCT 
+-- 	"CustomerID", 
+-- 	"Country"
+-- FROM kaggle_ecommerce_dataset as kaggle
+-- WHERE "CustomerID" IS NOT NULL
+-- ON CONFLICT ("CustomerID") DO NOTHING;
+
+-- INSERT INTO products ("StockCode", "Description", "UnitPrice")
+-- SELECT DISTINCT 
+-- 	"StockCode",
+-- 	"Description",
+-- 	"UnitPrice"
+-- FROM kaggle_ecommerce_dataset as kaggle
+-- WHERE "StockCode" IS NOT NULL
+-- ON CONFLICT ("StockCode") DO NOTHING;
+
+-- INSERT INTO orders ("InvoiceNo", "CustomerID", "InvoiceDate")
+-- SELECT DISTINCT
+-- 	"InvoiceNo",
+-- 	"CustomerID",
+-- 	"InvoiceDate"::timestamp
+-- FROM kaggle_ecommerce_dataset as kaggle
+-- WHERE "InvoiceNo" IS NOT NULL
+-- 	AND "CustomerID" IS NOT NULL
+-- ON CONFLICT ("InvoiceNo") DO NOTHING
+
+-- INSERT INTO order_items("InvoiceNo", "StockCode", "Quantity")
+-- SELECT 
+-- 	"InvoiceNo",
+-- 	"StockCode",
+-- 	"Quantity"
+-- FROM kaggle_ecommerce_dataset as kaggle
+-- WHERE "InvoiceNo" IS NOT NULL
+-- 	AND "StockCode" IS NOT NULL
+-- 	AND "Quantity"  != 0 -- ignore returns
+-- 	AND "CustomerID" IS NOT NULL
+-- ON CONFLICT ("InvoiceNo", "StockCode") DO NOTHING;
