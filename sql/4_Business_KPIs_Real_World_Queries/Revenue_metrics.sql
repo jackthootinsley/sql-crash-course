@@ -1,5 +1,5 @@
 
--- Day 4: Customer Metrics - KPIs
+-- Day 4: Revenue Metrics - KPIs
 -- Goal: Calculate key revenue and product performance metrics
 -- Dataset: Kaggle Ecommerce Dataset
 
