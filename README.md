@@ -1,8 +1,8 @@
-# SQL Crash Course – 2-Week Project
+# SQL – 2-Week Project
 
 ## Overview
 
-This repository showcases my work from a 2-week intensive SQL crash course, demonstrating **professional SQL skills** applied to real-world datasets.
+This repository showcases my work from a 2-week intensive SQL project, demonstrating **professional SQL skills** applied to real-world datasets.
 The focus is on writing advanced queries, analyzing data, designing databases, building pipelines, and delivering actionable business insights. 
 
 ## Skills Demonstrated
