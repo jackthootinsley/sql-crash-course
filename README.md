@@ -334,7 +334,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
       
   - **ER Diagram**
     
-      ![ER Diagram](sql/Database_Design_&_Modelling/day3_er_diagram.png)
+      ![ER Diagram](sql/3_Database_Design_&_Modelling/day3_er_diagram.png)
 
   - **Outcome**
     - All tables are now **fully normalised** and **linked**
