@@ -35,11 +35,11 @@
 
 -- Step 4: Join optimisation
 -- Create a small lookup table for payment types
--- CREATE TABLE payment_lookup (
+-- CREATE TABLE nyc_payment_lookup (
 -- 	payment_type INT PRIMARY KEY,
 -- 	description TEXT
 -- );
--- INSERT INTO payment_lookup(payment_type, description)
+-- INSERT INTO nyc_payment_lookup(payment_type, description)
 -- VALUES
 -- 	(1, 'Credit card'),
 -- 	(2, 'Cash'),
@@ -54,7 +54,7 @@
 -- 	p.description,
 -- 	COUNT(t.id) AS trip_count
 -- FROM nyc_yellow_taxi_jan2025 AS t
--- INNER JOIN payment_lookup AS p
+-- INNER JOIN nyc_payment_lookup AS p
 -- 	ON t.payment_type = p.payment_type
 -- GROUP BY p.description
 -- ORDER BY trip_count DESC;
