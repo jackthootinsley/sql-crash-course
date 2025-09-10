@@ -23,24 +23,24 @@
 
 -- Step 2: Normalisation
 -- Task: Split the raw dataset into normalised tables to achieve 3NF and remove redundancy
--- CREATE TABLE customers(
+-- CREATE TABLE kaggle_customers(
 -- 	"CustomerID" VARCHAR PRIMARY KEY,
 -- 	"Country" VARCHAR
 -- )
 
--- CREATE TABLE products (
+-- CREATE TABLE kaggle_products (
 -- 	"StockCode" VARCHAR PRIMARY KEY,
 -- 	"Description" TEXT,
 -- 	"UnitPrice" NUMERIC(10, 2) NOT NULL 
 -- )
 
--- CREATE TABLE orders (
+-- CREATE TABLE kaggle_orders (
 -- 	"InvoiceNo" VARCHAR PRIMARY KEY,
 -- 	"CustomerID" VARCHAR NOT NULL,
 -- 	"InvoiceDate" TIMESTAMP NOT NULL
 -- )
 
--- CREATE TABLE order_items (
+-- CREATE TABLE kaggle_order_items (
 -- 	"InvoiceNo" VARCHAR NOT NULL,
 -- 	"StockCode" VARCHAR NOT NULL,
 -- 	"Quantity" INTEGER NOT NULL,
@@ -50,23 +50,23 @@
 
 -- Step 3: Relationships & ER Diagram
 -- Task: Link the normalised tables with foreign keys
--- ALTER TABLE orders
+-- ALTER TABLE kaggle_orders
 -- ADD CONSTRAINT fk_orders_customers
 -- FOREIGN KEY ("CustomerID")
 -- REFERENCES customers("CustomerID");
 
--- ALTER TABLE order_items
+-- ALTER TABLE kaggle_order_items
 -- ADD CONSTRAINT fk_order_items_orders
 -- FOREIGN KEY ("InvoiceNo")
 -- REFERENCES orders("InvoiceNo");
 
--- ALTER TABLE order_items
+-- ALTER TABLE kaggle_order_items
 -- ADD CONSTRAINT fk_order_items_products
 -- FOREIGN KEY ("StockCode")
 -- REFERENCES products("StockCode");
 	
 -- Populate the new tables with data from the raw dataset
--- INSERT INTO customers ("CustomerID", "Country")
+-- INSERT INTO kaggle_customers ("CustomerID", "Country")
 -- SELECT DISTINCT 
 -- 	"CustomerID", 
 -- 	"Country"
@@ -74,7 +74,7 @@
 -- WHERE "CustomerID" IS NOT NULL
 -- ON CONFLICT ("CustomerID") DO NOTHING;
 
--- INSERT INTO products ("StockCode", "Description", "UnitPrice")
+-- INSERT INTO kaggle_products ("StockCode", "Description", "UnitPrice")
 -- SELECT DISTINCT 
 -- 	"StockCode",
 -- 	"Description",
@@ -83,7 +83,7 @@
 -- WHERE "StockCode" IS NOT NULL
 -- ON CONFLICT ("StockCode") DO NOTHING;
 
--- INSERT INTO orders ("InvoiceNo", "CustomerID", "InvoiceDate")
+-- INSERT INTO kaggle_orders ("InvoiceNo", "CustomerID", "InvoiceDate")
 -- SELECT DISTINCT
 -- 	"InvoiceNo",
 -- 	"CustomerID",
@@ -93,7 +93,7 @@
 -- 	AND "CustomerID" IS NOT NULL
 -- ON CONFLICT ("InvoiceNo") DO NOTHING
 
--- INSERT INTO order_items("InvoiceNo", "StockCode", "Quantity")
+-- INSERT INTO kaggle_order_items("InvoiceNo", "StockCode", "Quantity")
 -- SELECT 
 -- 	"InvoiceNo",
 -- 	"StockCode",
