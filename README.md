@@ -173,12 +173,12 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 
     **Query (create lookup table)**
     ```sql
-    CREATE TABLE payment_lookup (
+    CREATE TABLE nyc_payment_lookup (
         payment_type INT PRIMARY KEY,
         payment_method TEXT
     );
 
-    INSERT INTO payment_lookup (payment_type, payment_method) VALUES
+    INSERT INTO nyc_payment_lookup (payment_type, payment_method) VALUES
         (1, 'Credit card'),
         (2, 'Cash'),
         (3, 'No charge'),
@@ -191,7 +191,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
     ```sql
     SELECT pl.payment_method, COUNT(*) AS trips_count
     FROM nyc_yellow_taxi_jan2025 t
-    JOIN payment_lookup pl
+    JOIN nyc_payment_lookup pl
       ON t.payment_type = pl.payment_type
     GROUP BY pl.payment_method
     ORDER BY trips_count DESC;
@@ -199,7 +199,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 
     **Observation**
     - Using a small lookup table allows **efficient aggregation** with descriptive labels instead of numeric codes.
-    - Joins are fast because the `payment_lookup` table is tiny and can fit in memory.
+    - Joins are fast because the `nyc_payment_lookup` table is tiny and can fit in memory.
     - Demonstrates **query optimization via join indexing** if `payment_type` is indexed on the main table.
 
   </details>
