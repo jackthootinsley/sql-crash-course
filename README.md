@@ -368,7 +368,8 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
       - product_revenue → op products by total revenue, quantity sold, and average sale value
 
     ### Product Metrics
-    - **File:** [`Product_Metrics.sql`](sql/4_Business_KPIs_Real_World_Queries/Product_Metrics.sql)
+  
+    - **File:** [`Product_Metrics.sql`](sql/4_Business_KPIs_Real_World_Queries/Revenue_metrics.sql)
     - **KPIs Included:**
       - top_products   	→ Top-selling products by quantity & revenue
       - product_return 	→ Products with the highest return
