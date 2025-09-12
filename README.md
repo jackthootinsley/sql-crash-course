@@ -379,7 +379,245 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   
 
 - **Day 5: ETL / Data Pipeline Intro**  
-  Load raw CSVs into Postgres, clean data, and create transformed analytics-ready tables using materialized views, foreign data wrappers, and partitioning.  
+  Load raw CSVs into Postgres, clean data, and create transformed analytics-ready tables using materialized views and partitioning.
+
+  <details>
+     <summary>[Kaggle Ecommerce Dataset] Step 1: Set up staging tables</summary>
+     
+     -  **Task: Load raw CSV into staging tables**
+     -  **File:** [`1_Setup_Staging_Tables.sql`] (sql/5_ETL_Data_Pipeline/1_Setup_Staging_Tables.sql)
+     -  Note: staging tables defined were taken from the work done in Day 2 
+  </details>
+
+  <details>
+     <summary>[Kaggle Ecommerce Dataset] Step 2: Transform & load normalised tables</summary>
+
+     -   **Task: Populate tables from staging, dealing with deduplication, removing nulls , handling inconsistencies, and ensuring correct linkage**
+     -   **File:** [`2_Transform_Load_Normalised_Tables.sql`] (sql/5_ETL_Data_Pipeline/2_Transform_Load_Normalised_Tables.sql)
+     -   **Observation / Notes:**
+       -  Deduplication was required to prevent primary key violations in `orders` and `order_items`
+       -  `MAX` and `AVG` functions were used on products to handle inconsistencies in descriptions and unit prices.
+       -  Row-numbering ensured that only the first instance of a duplicate invoice was inserted
+       -  Cleaning staging tables before insert allows normalised tables to maintain foreign key relationships and be analytics-ready.
+  </details>
+
+  <details>
+     <summary>[Kaggle Ecommerce Dataset] Step 3: Query optimisation & indexing</summary>
+
+     -   **Task: Create filters and indexing for easy search through tables**
+     -   **File:** [`3_Query_Optimisation_Indexing.sql`] (sql/5_ETL_Data_Pipeline/3_Query_Optimisation_Indexing.sql)
+     -   **Observation / Notes**
+     -   Indexes were added to **frequently filtered or joined columns**
+         -   `kaggle_customers("Country")` - speeds up filtering customers by country
+         -   `kaggle_orders("CustomerID")` - speeds up queries joining orders to customers or aggreagting orders per customers
+         -   `kaggle_order_items("InvoiceNo")` and `("StockCode")` - improves performance of joins with orders and products
+     -   Creating indexes **after cleaning and loading normalised tables** ensures the indexes reflect the final dataset
+     -   Testing indexes with `EXPLAIN ANALYZE` helps verify which queries benefit the most
+  </details>
+
+  <details>
+    <summary>[Kaggle Ecommerce Dataset] Step 4: Performance improvements (Materialised Views)</summary>
+
+    -   **File:** [`4_Performance_Improvements_MV.sql`] (sql/5_ETL_Data_Pipeline/4_Performance_Improvements_MV.sql)
+  
+    -   **Identify a query that aggregates metrics and is slow to execute**
+ 
+        - **Query**
+  
+            ```sql
+            SELECT
+                o."CustomerID",
+                ROUND(SUM(oi."Quantity" * p."UnitPrice"), 2) AS total_spend,
+                COUNT(DISTINCT o."InvoiceNo") AS total_orders
+            FROM kaggle_orders o
+            INNER JOIN kaggle_order_items oi
+                ON o."InvoiceNo" = oi."InvoiceNo"
+            INNER JOIN kaggle_products p
+                ON oi."StockCode" = p."StockCode"
+            WHERE o."CustomerID" <> ''
+                AND oi."Quantity" > 0
+            GROUP BY o."CustomerID"
+            ```
+    - **Observations**          
+      - This query calculates total spend and total orders per customer by joining **three large tables** and performing **aggregations**
+      - On large datasets, this query can take several seconds or more to execute
+      - Candidate for **materialised view**, due to it being expensive and likely to be queried repeatedly in dashboards
+        
+    - **EXPLAIN ANALYZE Output (baseline without materialised view):**
+      <details>
+        <summary>Click to expand</summary>
+        
+        ```
+        GroupAggregate  (cost=55618.97..61496.31 rows=4372 width=46) (actual time=2312.011..2573.965 rows=4339 loops=1)
+          Group Key: o.""CustomerID""
+            Sort  (cost=55618.97..56587.59 rows=387451 width=23) (actual time=2311.992..2402.872 rows=387875 loops=1)
+            Sort Key: o.""CustomerID"", o.""InvoiceNo""
+            Sort Method: external merge  Disk: 13608kB
+              Hash Join  (cost=824.28..10345.34 rows=387451 width=23) (actual time=272.031..1610.235 rows=387875 loops=1)
+                Hash Cond: ((oi.""StockCode"")::text = (p.""StockCode"")::text)
+                  Hash Join  (cost=696.70..9199.64 rows=387451 width=23) (actual time=210.065..1410.896 rows=387875 loops=1)
+                    Hash Cond: ((oi.""InvoiceNo"")::text = (o.""InvoiceNo"")::text)
+                      Seq Scan on kaggle_order_items oi  (cost=0.00..7485.51 rows=387521 width=17) (actual time=1.114..1027.332 rows=387875 loops=1)
+                        Filter: (""Quantity"" > 0)
+                        Rows Removed by Filter: 8806
+                      Hash  (cost=419.38..419.38 rows=22186 width=13) (actual time=199.479..199.480 rows=22190 loops=1)
+                        Buckets: 32768  Batches: 1  Memory Usage: 1235kB
+                          Seq Scan on kaggle_orders o  (cost=0.00..419.38 rows=22186 width=13) (actual time=1.512..161.686 rows=22190 loops=1)
+                          Filter: ((""CustomerID"")::text <> ''::text)
+              Hash  (cost=76.70..76.70 rows=4070 width=12) (actual time=59.908..60.532 rows=4070 loops=1)
+                Buckets: 4096  Batches: 1  Memory Usage: 211kB
+                  Seq Scan on kaggle_products p  (cost=0.00..76.70 rows=4070 width=12) (actual time=2.787..46.360 rows=4070 loops=1)
+          Planning Time: 67.636 ms
+          Execution Time: 2586.840 ms
+        ```
+      </details>
+
+    - **Create materialised view**
+    
+      - **Query**
+        ```sql
+        CREATE MATERIALIZED VIEW customer_metrics_mv AS
+        SELECT
+            o."CustomerID",
+            ROUND(SUM(oi."Quantity" * p."UnitPrice"), 2) AS total_spend,
+            COUNT(DISTINCT o."InvoiceNo") AS total_orders
+        FROM kaggle_orders o
+        INNER JOIN kaggle_order_items oi
+            ON o."InvoiceNo" = oi."InvoiceNo"
+        INNER JOIN kaggle_products p
+            ON oi."StockCode" = p."StockCode"
+        WHERE o."CustomerID" <> ''
+            AND oi."Quantity" > 0
+        GROUP BY o."CustomerID"
+        ```
+
+    - **EXPLAIN ANALYZE Output (materialised view):**
+      <details>
+        <summary>Click to expand</summary>
+        
+        ```
+        Seq Scan on customer_metrics_mv  (cost=0.00..71.39 rows=4339 width=21) (actual time=0.020..0.338 rows=4339 loops=1)
+        Planning Time: 1.663 ms
+        Execution Time: 0.537 ms
+        ```
+      </details>
+
+    - **Observations**          
+      - The original query scans and aggregates **three large tables**, performing hash joins and a sort, taking ~2.5 seconds
+      - Using a **materialised view** stores the precomputed results, so subsequent queries only perform a *sequential scan on the MV*, which executes in ~0.5ms
+      - The MV reduces CPU, memory, and disk I/O, since joins and aggregation are done once and reused. This is ideal for dashboarding or frequeney analytics queries
+      - Any changes in the underlying tables require a refresh to keep the MV up-to-date
+
+  </details>
+
+  <details>
+    <summary>[NYC Yellow Taxi Dataset] Step 5: Performance improvements (Partitioning)</summary>
+
+    - **File:** ['5_Performance_Improvements_Partitioning.sql`] (sql/5_ETL_Data_Pipeline/5_Performance_Improvements_Partitioning.sql)
+ 
+    - **Task:** Partition a large table (`nyc_yellow_taxi_jan2025`) by week to improve query performance and manageability. Add indexes on frequently filtered columns
+ 
+    - **Parent Partitioned Table**
+      ```sql
+      CREATE TABLE nyc_yellow_taxi_jan2025_part (
+        vendorid INTEGER,
+        tpep_pickup_datetime TIMESTAMP,
+        tpep_dropoff_datetime TIMESTAMP,
+        passenger_count INTEGER,
+        trip_distance FLOAT,
+        payment_type INTEGER,
+        fare_amount FLOAT,
+        tip_amount FLOAT,
+        total_amount FLOAT
+      ) PARTITION BY RANGE (tpep_pickup_datetime);
+      ```
+
+    - **Automation: Create weekly partitions**
+      ```sql
+      DO $$
+      DECLARE
+          start_date DATE := '2025-01-01';
+          end_date DATE := '2025-02-01';
+          next_week DATE;
+      BEGIN
+          next_week := start_date + INTERVAL '7 days';
+          WHILE start_date < end_date LOOP
+              EXECUTE format('
+                  CREATE TABLE nyc_yellow_taxi_%s PARTITION OF nyc_yellow_taxi_jan2025_part
+                  FOR VALUES FROM (%L) TO (%L);',
+                  to_char(start_date, 'YYYY_MM_DD'),
+                  start_date,
+                  next_week
+              );
+              start_date := next_week;
+              next_week := start_date + INTERVAL '7 days';
+              IF next_week > end_date THEN
+                  next_week := end_date;
+              END IF;
+          END LOOP;
+      END $$;
+      ```
+
+    - **Populate partitioned table**
+      (rows are automatically routed to the corret weekly partitioned based on `tpep_pickup_datetime`)
+      ```sql
+      INSERT INTO nyc_yellow_taxi_jan2025_part
+      SELECT vendorid,
+             tpep_pickup_datetime,
+             tpep_dropoff_datetime,
+             passenger_count,
+             trip_distance,
+             payment_type,
+             fare_amount,
+             tip_amount,
+             total_amount
+      FROM nyc_yellow_taxi_jan2025;
+      ```
+
+    - **Add indexes to improve query performance**
+      ```sql
+      CREATE INDEX idx_vendorid ON nyc_yellow_taxi_jan2025_part(vendorid);
+      CREATE INDEX idx_passenger_count ON nyc_yellow_taxi_jan2025_part(passenger_count);
+      CREATE INDEX idx_fare_amount ON nyc_yellow_taxi_jan2025_part(fare_amount);
+      ```
+
+    - **EXPLAIN ANALYZE Output (baseline)**
+      <details>
+        <summary>Click to expand</summary>
+        
+        ```
+        Aggregate  (cost=15878.93..15878.94 rows=1 width=8) (actual time=42.123..42.124 rows=1 loops=1)
+          Index Only Scan using index_vendor_pickup_fare on nyc_yellow_taxi_jan2025  (cost=0.42..15800.74 rows=31279 width=0) (actual time=4.060..40.290 rows=31943 loops=1)
+          Index Cond: ((tpep_pickup_datetime >= '2025-01-08 00:00:00'::timestamp without time zone) AND (tpep_pickup_datetime < '2025-01-15 00:00:00'::timestamp without time zone))
+          Heap Fetches: 0
+        Planning Time: 0.091 ms
+        Execution Time: 42.160 ms
+        ```
+      </details>
+
+    - **EXPLAIN ANALYZE Output (partitioned table with indexes)**
+      <details>
+        <summary>Click to expand</summary>
+        
+        ```
+        Aggregate  (cost=953.99..954.00 rows=1 width=8) (actual time=6.403..6.404 rows=1 loops=1)
+          Seq Scan on nyc_yellow_taxi_2025_01_08 nyc_yellow_taxi_jan2025_part  (cost=0.00..874.14 rows=31937 width=0) (actual time=0.012..4.575 rows=31943 loops=1)
+            Filter: ((tpep_pickup_datetime >= '2025-01-08 00:00:00'::timestamp without time zone) AND (tpep_pickup_datetime < '2025-01-15 00:00:00'::timestamp without time zone))
+        Planning Time: 0.130 ms
+        Execution Time: 6.447 ms
+        ```
+      </details>
+
+    - **Observations / Notes**
+      - Partitioning by **week** allows queries that filter on `tpep_pickup_datetime` to scan only the relevant weekly partition rather than the entire table.
+      - Indexes on frequently filtered columns (`vendorid`, `passenger_count`, `fare_amount`) improves performance within each partition
+      - **EXPLAIN ANALYZE comparisons** show the benefit of partitions for queries that filter by week. For larger datasets, more benefit can be realised from partitions.
+        - Baseline on full table: ~42ms
+        - Partitioned table with index: ~6ms
+      - Note: queries thsat do not filter by partition key may not see speed improvements, so always design queries with the partition key in mind.
+  </details>
+
+   
   
 - **End of week 1: Mini Project #1**  
   Integrate Week 1 skills: load datasets, write 5–10 queries, document assumptions, and push to GitHub.  
