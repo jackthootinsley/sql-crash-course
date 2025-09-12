@@ -385,7 +385,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
      <summary>[Kaggle Ecommerce Dataset] Step 1: Set up staging tables</summary>
      
      -  **Task: Load raw CSV into staging tables**
-     -  **File:** [`1_Setup_Staging_Tables.sql`] (sql/5_ETL_Data_Pipeline/1_Setup_Staging_Tables.sql)
+     -  **File:** [`1_Setup_Staging_Tables.sql`](sql/5_ETL_Data_Pipeline/1_Setup_Staging_Tables.sql)
      -  Note: staging tables defined were taken from the work done in Day 2 
   </details>
 
@@ -393,7 +393,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
      <summary>[Kaggle Ecommerce Dataset] Step 2: Transform & load normalised tables</summary>
 
      -   **Task: Populate tables from staging, dealing with deduplication, removing nulls , handling inconsistencies, and ensuring correct linkage**
-     -   **File:** [`2_Transform_Load_Normalised_Tables.sql`] (sql/5_ETL_Data_Pipeline/2_Transform_Load_Normalised_Tables.sql)
+     -   **File:** [`2_Transform_Load_Normalised_Tables.sql`](sql/5_ETL_Data_Pipeline/2_Transform_Load_Normalised_Tables.sql)
      -   **Observation / Notes:**
        -  Deduplication was required to prevent primary key violations in `orders` and `order_items`
        -  `MAX` and `AVG` functions were used on products to handle inconsistencies in descriptions and unit prices.
@@ -405,7 +405,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
      <summary>[Kaggle Ecommerce Dataset] Step 3: Query optimisation & indexing</summary>
 
      -   **Task: Create filters and indexing for easy search through tables**
-     -   **File:** [`3_Query_Optimisation_Indexing.sql`] (sql/5_ETL_Data_Pipeline/3_Query_Optimisation_Indexing.sql)
+     -   **File:** [`3_Query_Optimisation_Indexing.sql`](sql/5_ETL_Data_Pipeline/3_Query_Optimisation_Indexing.sql)
      -   **Observation / Notes**
      -   Indexes were added to **frequently filtered or joined columns**
          -   `kaggle_customers("Country")` - speeds up filtering customers by country
@@ -418,7 +418,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   <details>
     <summary>[Kaggle Ecommerce Dataset] Step 4: Performance improvements (Materialised Views)</summary>
 
-    -   **File:** [`4_Performance_Improvements_MV.sql`] (sql/5_ETL_Data_Pipeline/4_Performance_Improvements_MV.sql)
+    -   **File:** [`4_Performance_Improvements_MV.sql`](sql/5_ETL_Data_Pipeline/4_Performance_Improvements_MV.sql)
   
     -   **Identify a query that aggregates metrics and is slow to execute**
  
@@ -513,7 +513,7 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
   <details>
     <summary>[NYC Yellow Taxi Dataset] Step 5: Performance improvements (Partitioning)</summary>
 
-    - **File:** ['5_Performance_Improvements_Partitioning.sql`] (sql/5_ETL_Data_Pipeline/5_Performance_Improvements_Partitioning.sql)
+    - **File:** [`5_Performance_Improvements_Partitioning.sql`](sql/5_ETL_Data_Pipeline/5_Performance_Improvements_Partitioning.sql)
  
     - **Task:** Partition a large table (`nyc_yellow_taxi_jan2025`) by week to improve query performance and manageability. Add indexes on frequently filtered columns
  
