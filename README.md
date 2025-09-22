@@ -617,10 +617,86 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
       - Note: queries thsat do not filter by partition key may not see speed improvements, so always design queries with the partition key in mind.
   </details>
 
-   
   
-- **End of week 1: Mini Project #1**  
-  Integrate Week 1 skills: load datasets, write 5–10 queries, document assumptions, and push to GitHub.  
+- [NYC Yellow Taxi Dataset] **Week 1: Round up**
+
+  This mini-project demonstrates ETL, database normalisation, indexing, and KPI analysis on a trimmed version of the NYC Yellow Taxi dataset (~1M rows).
+  <details>
+    <summary>Step 1: Data Staging & Cleaning</summary>
+    
+    - **Task:** Load raw dataset into a staging table and clean for analytics
+    - **File:** [`1_Staging_And_Schema`](sql/Week_1_Round_Up/01_Staging_And_Schema.sql)
+ 
+    **Action**
+    - Created a staging table `stg_nyc_yellow_taxi_jan2025` to mimic raw import
+    - Selected **key columns** relevant for analytics
+      - `vendorid` → taxi company
+      - `tpep_pickup_datetime`, `tpep_dropoff_datetime` → timestamps for trip duration analysis
+      - `passenger_count` → filtering/grouping
+      - `trip_distance` → aggregation
+      - `payment_type` → payment method lookup
+      - `fare_amount`, `tip_amount`, `total_amount` → core revenue metrics
+    - Note: trimming and renaming were previously done in Day 2 through [`yellow_taxi_upload`](sql/2_Query_Optimisation_&_Large Data/yellow_taxi_upload.py)
+  </details>
+
+  <details>
+    <summary>Step 2: Database normalisation </summary>
+
+    - **Task:** Create lookup tables and date dimension to normalise analytics table
+    - **File:** [`01_Staging_And_Schema`](sql/Week_1_Round_Up/01_Staging_And_Schema.sql)
+ 
+    - **`nyc_payment_lookup`**
+      - `payment_type` (PK)
+      - `description`
+    - **`nyc_vendorid_lookup`**
+      - `vendorid` (PK)
+      - `tpep_provider`
+    - **`nyc_pickup_date_lookup`**
+      - `pickup_date` (PK)
+      - `day_of_week`, `is_weekend`, `month`, `year`
+    - **`nyc_yellow_taxi_analytics`**
+      - Filters out invalid rows (`trip_distance > 0`, `fare_amount >= 0, `passenger_count > 0`)
+      - Includes derived column `pickup_date` for easier joins to the date dimension
+     
+    - Lookup tables reduce redundancy for `vendorid` and `payment_type`
+    - `pickup_date` dimension allows grouping by **day, month, year** and calculating weekend flags
+    - `day_of_week` stored as `TEXT` for readability in analytics queries
+  </details>
+
+  <details>
+    <summary>Step 3: Analytics & Indexing</summary>
+    
+    - **Task:** Create lookup tables and date dimension to normalise analytics table
+    - **File:** [`02_indexing`](sql/Week_1_Round_Up/02_indexing.sql)
+ 
+    - Indexed for query performance:
+      - `tpep_pickup_datetime` → time-based aggregation
+      - `vendorid, tpep_pickup_datetime` → composite for vendor & date filtering
+      - `payment_type` → payment filtering
+      - `pickup_date` → join with date dimension
+  </details>
+
+  <details>
+    <summary>Step 4: KPIs & Analytics</summary>
+
+    - **Task:** Compute key metrics for vendors and day-of-week performance
+    - **File:** [`03_KPIs_Analytics`](sql/Week_1_Round_Up/03_KPIs_Analytics.sql)
+ 
+    - **`mv_vendor_day_kpis`**
+      - Total trips
+      - Total fare, tips, revenue
+      - Avg fare per mile
+      - Avg tip percentage
+      - Avg trip distance
+      - Avg passengers
+      - Revenue per trip
+
+    - **Query Highlights**
+      - Aggregates metrics by `tpep_provider` and `day_of_week`
+      - Orders weekdays starting from Monday
+      - Uses materialized view to speed up repeated queries
+  </details>
+ 
 
 ### Week 2 – Professional Practices & Business Context
 
