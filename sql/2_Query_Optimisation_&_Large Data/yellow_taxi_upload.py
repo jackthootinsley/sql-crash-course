@@ -60,7 +60,7 @@ with engine.connect() as conn:
 
 # Insert data in chunks to avoid memory issues
 chunksize = 50000
-for i, chunk in enumerate(range(0, len(df), chunksize)):
+for chunk in enumerate(range(0, len(df), chunksize)):
     df_chunk = df.iloc[chunk:chunk+chunksize]
     df_chunk.to_sql('nyc_yellow_taxi_jan2025', engine, if_exists='append', index=False)
     print(f"Inserted rows {chunk} to {chunk + len(df_chunk)}")
