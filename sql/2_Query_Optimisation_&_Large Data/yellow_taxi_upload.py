@@ -10,7 +10,7 @@ DB_HOST =  os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
 
-parquet_file = '/Users/jackthootinsley/development/projects/sql-crash-course/datasets/nyc_yellow_taxi/yellow_tripdata_2025-01.parquet'
+parquet_file = '/Users/jackthootinsley/development/projects/sql-projects/datasets/nyc_yellow_taxi/yellow_tripdata_2025-01.parquet'
 df = pd.read_parquet(parquet_file)
 
 
