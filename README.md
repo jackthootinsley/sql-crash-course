@@ -700,8 +700,74 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
 
 ### Week 2 – Professional Practices & Business Context
 
-- **Day 6: Security & Restricted Views**  
+- [Kaggle Ecommerce Dataset] **Day 6: Security & Restricted Views**  
   Create roles, grant permissions, and mask sensitive data for professional workflows.  
+  <details>
+    <summary>Step 1: Identify Sensitive Data</summary>
+    
+    - **Objective:** Determine whch columns in the Kaggle Ecommerce dataset contain PII, financial, or internal identifiers and classify their sensitivty
+    - **Dataset Sensitivty**
+    - `kaggle_customers`
+      - `CustomerID`, highly sensitive, can be masked with hash
+      - `Country`, moderately sensitive, safe to show in aggregate/grouping
+    - `kaggle_orders`
+      - `InvoiceNo`, moderately sensitive, can be aggregated if needed
+      - `CustomerID`, highly sensitive, can be masked with hash
+      - `InvoiceDate`, moderately sensitive, can be truncated if need be
+    - `kaggle_order_items`
+      - `InvoiceNo`, moderately sensitive, can be aggregated if needed
+      - `StockCode`, low sensitivity
+      - `Quantity`, low sensitivity
+    - kaggle_products
+      - `StockCode`, low sensitivity
+      - `Description`, moderately sensitive due to revealing internal catalog info, can be truncated for business users
+      - `UnitPrice`, moderately sensitive for competitive reasons, can be aggregated if needed
+  </details>
+
+  <details>
+    <summary>Step 2: Set Up Roles & Users</summary>
+    
+    **File:** [`06_roles_and_users`](sql/06_Security_&_Restricted_Views/06_roles_and_users.sql)
+    - **Objective:** Create a professional, role-based access model
+    - **Roles Created**
+      - `data_engineer` → full access to staging and cleaned tables
+      - `analyst` → read-only access to cleaned tables
+      - `business_user` → access only to restricted views (no raw tables)
+    - **Users Created**
+      -  `liz_engineer` → assigned `data_engineer`
+      -  `jack_analyst` → assigned `analyst`
+      -  `neil_biz` → assigned `business_user`
+    -  **Action**
+    -  Created base roles and users  
+  </details>
+
+  <details>
+    <summary> Step 3: Set Up Table Permissions</summary>
+
+    **File** [`06_permissions_and_restricted_views`](sql/06_Security_&_Restricted_Views/06_permissions_and_restricted_views.sql)
+    - **Objective**: Secure tables based on role and dataset sensitivity
+    - **Action**
+      - Staging tables (`stg_kaggle_*`) are only accessible by `data_engineer`
+      - Cleaned tables (`kaggle_*`) are read-only for `analysts`
+      - Business users cannot access any tables directly
+      - Revoked all unnecessary privileges to prevent accidental exposure
+  </details>
+
+  <details>
+    <summary> Step 4: Created Restricted Views</summary>
+
+    **File** [`06_permissions_and_restricted_views`](sql/06_Security_&_Restricted_Views/06_permissions_and_restricted_views.sql)
+    - **Objective**: Protect sensitive data while allowing analytics for business users
+    - **Views Created**
+      - `v_customers_public` → Masks `CustomerID` using `md5`, exposes `country` for grouping
+      - `v_orders_summary` → Aggregates `InvoiceNo`count per customer, masks `CustomerID`, aggregates revenue (`Quantity * UnitPrice`), and includes `first_order_date` and `last_order_date`
+      - `v_products_public` → Exposes, `StockCode`, `Description`, and `UnitPrice`
+    - **Action**
+      - Applied masking for highly sensitive field (`CustomerID`)
+      - Aggregated moderately sensitive info (`InvoiceNo`, `InvoiceDate`)
+      - Granted `SELECT` access on views to `business_user`
+      - Ensured business users cannot access raw tables
+  </details>
 
 - **Day 7: Dashboarding**  
   Connect SQL results to Tableau, Power BI, or Metabase to visualize metrics.  
