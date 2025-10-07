@@ -769,8 +769,62 @@ All work is done using **Supabase** (PostgreSQL) for the database, **pgAdmin** f
       - Ensured business users cannot access raw tables
   </details>
 
-- **Day 7: Dashboarding**  
-  Connect SQL results to Tableau, Power BI, or Metabase to visualize metrics.  
+- [Kaggle Ecommerce Dataset] **Day 7: Dashboarding**  
+  Visualise key business metrics and trends using Metabase, connected to the Supabase PostgreSQL database.
+
+  <details>
+    <summary>Overview</summary>
+
+    - **Objective:** Turn previously written SQL queries into actionable visualisation and a cohesive dashboard
+    - **Tool Used:** Metabse (open-source BI tool) connected to Supabase PostgreSQL database
+    - **Dashboard Layout**
+      - **Row 1 - High-Level KPIs:** Total Revenue, Unique Customers, Repeat Customer Rate (%), Average Order Value (AOV)
+      - **Row 2 - Monthly Trends:** Revenue by Month, Number of Orders by Month, New Customers per Month
+      - **Row 3 - Product Insights:** Top 10 Products by Revenue Contribution, Top 10 Products by Quantity Sold
+      - **Row 4 - Customer Insights:** Top 10 Customers by Total Spend, Orders by Order Size
+  </details>
+
+  <details>
+    <summary>Row 1 – High-Level KPI Cards</summary>
+    
+    - **Metrics:** Total Revenue, Unique Customers, Repeat Customer Rate (%), Average Order Value (AOV)  
+    - **Objective:** Provide an at-a-glance view of business performance  
+    - **File / Screenshot:** [`Row_1_KPIs`](dashboards/kaggle_ecommerce_row1_kpis.png)  
+      
+    ![Row 1 KPIs](dashboards/kaggle_ecommerce_row1_kpis.png)
+  </details>
+
+  <details>
+    <summary>Row 2 – Monthly Trends</summary>
+    
+    - **Metrics:** Revenue by Month, Number of Orders by Month, New Customers per Month  
+    - **Objective:** Show trends over time and identify spikes or drops in activity  
+    - **File / Screenshot:** [`Row_2_Trends`](dashboards/kaggle_ecommerce_row2_trends.png)  
+      
+    ![Row 2 Trends](dashboards/kaggle_ecommerce_row2_trends.png)
+  </details>
+
+  <details>
+    <summary>Row 3 – Product Insights</summary>
+    
+    - **Metrics:** Top 10 Products by Revenue Contribution, Top 10 Products by Quantity Sold  
+    - **Objective:** Identify best-selling products and contribution to overall revenue  
+    - **File / Screenshot:** [`Row 3 Products`](dashboards/kaggle_ecommerce_row3_products.png)  
+      
+    ![Row 3 Products](dashboards/kaggle_ecommerce_row3_products.png)
+  </details>
+
+  <details>
+    <summary>Row 4 – Customer Insights</summary>
+    
+    - **Metrics:** Top 10 Customers by Total Spend, Orders by Order Size  
+    - **Objective:** Highlight high-value customers and distribution of order sizes  
+    - **File / Screenshot:** [`Row 4 Customers`](dashboards/kaggle_ecommerce_row4_customers.png)  
+      
+    ![Row 4 Customers](dashboards/kaggle_ecommerce_row4_customers.png)
+  </details>
+  
+   
 
 - **Day 8: Cloud SQL / Tooling**  
   Work with cloud datasets like BigQuery; integrate Python (pandas, SQLAlchemy) for analysis.  
